@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>BINGO Number Draw</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #172033;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      padding: clamp(6px, 1.5vmin, 16px);
+    }
+
+
+    /* ========================================
+       MAIN APPLICATION
+       ======================================== */
+
+    .container {
+      width: min(100%, 950px);
+      height: calc(100dvh - clamp(12px, 3vmin, 32px));
+      max-height: 1000px;
+
+      display: flex;
+      flex-direction: column;
+
+      background: white;
+
+      padding: clamp(10px, 2vmin, 22px);
+
+      border-radius: clamp(10px, 2vmin, 18px);
+
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.10);
+
+      overflow: hidden;
+    }
+
+
+    /* ========================================
+       TITLE
+       ======================================== */
+
+    h1 {
+      flex-shrink: 0;
+
+      text-align: center;
+
+      margin:
+        0
+        0
+        clamp(6px, 1.5vh, 15px);
+
+      color: #2563eb;
+
+      font-size: clamp(22px, 4vh, 38px);
+
+      letter-spacing: clamp(4px, 1vw, 10px);
+    }
+
+
+    /* ========================================
+       MAIN TWO-COLUMN LAYOUT
+       ======================================== */
+
+    .game-layout {
+      flex: 1;
+      min-height: 0;
+
+      display: grid;
+
+      grid-template-columns:
+        minmax(180px, 0.8fr)
+        minmax(260px, 1.2fr);
+
+      gap: clamp(10px, 2.5vw, 30px);
+
+      align-items: stretch;
+    }
+
+
+    /* ========================================
+       LEFT SIDE
+       ======================================== */
+
+    .draw-area {
+      min-height: 0;
+
+      display: flex;
+      flex-direction: column;
+
+      justify-content: center;
+      align-items: center;
+
+      text-align: center;
+    }
+
+
+    /* ========================================
+       CURRENT NUMBER BALL
+       ======================================== */
+
+    .ball {
+      width: clamp(120px, 24vmin, 230px);
+      height: clamp(120px, 24vmin, 230px);
+
+      flex-shrink: 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      margin-bottom: clamp(10px, 3vh, 30px);
+
+      border-radius: 50%;
+
+      background: #64748b;
+
+      color: white;
+
+      font-size: clamp(34px, 7vmin, 65px);
+      font-weight: bold;
+
+      box-shadow:
+        0 10px 25px rgba(0, 0, 0, 0.20);
+
+      transition:
+        background-color 0.25s ease,
+        transform 0.15s ease;
+    }
+
+
+    /* Ball colors */
+
+    .ball-B {
+      background: #2563eb;
+    }
+
+    .ball-I {
+      background: #dc2626;
+    }
+
+    .ball-N {
+      background: #16a34a;
+    }
+
+    .ball-G {
+      background: #d97706;
+    }
+
+    .ball-O {
+      background: #7c3aed;
+    }
+
+
+    /* ========================================
+       BUTTONS
+       ======================================== */
+
+    .button-area {
+      width: min(100%, 300px);
+
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+
+      gap: clamp(5px, 1vh, 10px);
+    }
+
+    button {
+      border: none;
+      border-radius: 9px;
+
+      padding: clamp(8px, 1.7vh, 14px);
+
+      font-family: inherit;
+      font-weight: bold;
+
+      cursor: pointer;
+    }
+
+    #drawButton {
+      width: 100%;
+
+      background: #16a34a;
+      color: white;
+
+      font-size: clamp(13px, 2.2vh, 19px);
+    }
+
+    #drawButton:hover {
+      background: #15803d;
+    }
+
+    #drawButton:active {
+      transform: scale(0.98);
+    }
+
+    #drawButton:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    #resetButton {
+      align-self: center;
+
+      background: #e2e8f0;
+      color: #172033;
+
+      font-size: clamp(11px, 1.8vh, 15px);
+    }
+
+    #resetButton:hover {
+      background: #cbd5e1;
+    }
+
+    button:focus-visible {
+      outline: 3px solid #f59e0b;
+      outline-offset: 2px;
+    }
+
+
+    /* ========================================
+       COUNTER
+       ======================================== */
+
+    .counter {
+      margin-top: clamp(5px, 1.5vh, 14px);
+
+      color: #64748b;
+
+      font-size: clamp(10px, 1.8vh, 14px);
+    }
+
+
+    /* ========================================
+       RIGHT HISTORY AREA
+       ======================================== */
+
+    .history-area {
+      min-width: 0;
+      min-height: 0;
+
+      display: flex;
+      flex-direction: column;
+
+      border-left: 2px solid #e2e8f0;
+
+      padding-left: clamp(8px, 2vw, 20px);
+    }
+
+    .history-title {
+      flex-shrink: 0;
+
+      text-align: center;
+
+      margin-bottom: clamp(5px, 1vh, 10px);
+
+      font-size: clamp(12px, 2vh, 18px);
+      font-weight: bold;
+    }
+
+
+    /* ========================================
+       BINGO TRACKER
+       ======================================== */
+
+    .bingo-list {
+      flex: 1;
+      min-height: 0;
+
+      display: grid;
+
+      grid-template-rows: repeat(5, 1fr);
+
+      gap: clamp(4px, 1vh, 9px);
+    }
+
+
+    .bingo-row {
+      min-height: 0;
+
+      display: grid;
+
+      grid-template-columns:
+        clamp(36px, 6vmin, 58px)
+        1fr;
+
+      gap: clamp(4px, 1vw, 10px);
+    }
+
+
+    /* ========================================
+       BINGO LETTER
+       ======================================== */
+
+    .letter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: clamp(5px, 1vmin, 10px);
+
+      color: white;
+
+      font-size: clamp(18px, 4vh, 30px);
+      font-weight: bold;
+    }
+
+    .letter-B {
+      background: #2563eb;
+    }
+
+    .letter-I {
+      background: #dc2626;
+    }
+
+    .letter-N {
+      background: #16a34a;
+    }
+
+    .letter-G {
+      background: #d97706;
+    }
+
+    .letter-O {
+      background: #7c3aed;
+    }
+
+
+    /* ========================================
+       DRAWN NUMBERS
+       ======================================== */
+
+    .numbers {
+      min-width: 0;
+      min-height: 0;
+
+      display: grid;
+
+      /*
+       * Maximum 15 numbers exist per letter.
+       * Five columns x three rows ensures
+       * every possible number fits.
+       */
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+
+      gap: clamp(2px, 0.5vmin, 5px);
+
+      padding: clamp(3px, 0.8vmin, 7px);
+
+      background: #f8fafc;
+
+      border: 1px solid #e2e8f0;
+      border-radius: clamp(5px, 1vmin, 10px);
+    }
+
+
+    .drawn-number {
+      min-width: 0;
+      min-height: 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background: white;
+
+      border: 1px solid #cbd5e1;
+      border-radius: 50%;
+
+      aspect-ratio: 1 / 1;
+
+      justify-self: center;
+      align-self: center;
+
+      width: min(100%, 4.5vh);
+
+      font-size: clamp(9px, 1.8vh, 14px);
+      font-weight: bold;
+    }
+
+
+    /* ========================================
+       SMALL / SHORT WINDOWS
+       ======================================== */
+
+    @media (max-height: 600px) {
+
+      .container {
+        padding: 8px 12px;
+      }
+
+      h1 {
+        font-size: 22px;
+        margin-bottom: 5px;
+      }
+
+      .ball {
+        width: 115px;
+        height: 115px;
+
+        font-size: 35px;
+
+        margin-bottom: 8px;
+      }
+
+      .history-title {
+        margin-bottom: 4px;
+      }
+
+      .bingo-list {
+        gap: 3px;
+      }
+
+      .button-area {
+        gap: 3px;
+      }
+
+      #drawButton {
+        padding: 7px;
+      }
+
+      #resetButton {
+        padding: 6px 10px;
+      }
+
+      .counter {
+        margin-top: 4px;
+      }
+    }
+
+
+    /* ========================================
+       NARROW PORTRAIT WINDOWS
+       ======================================== */
+
+    @media (max-width: 500px) {
+
+      body {
+        padding: 5px;
+      }
+
+      .container {
+        height: calc(100dvh - 10px);
+        padding: 8px;
+        border-radius: 10px;
+      }
+
+      h1 {
+        font-size: clamp(20px, 7vw, 28px);
+        margin-bottom: 7px;
+      }
+
+      .game-layout {
+        grid-template-columns:
+          minmax(125px, 0.72fr)
+          minmax(180px, 1.28fr);
+
+        gap: 7px;
+      }
+
+      .history-area {
+        padding-left: 6px;
+      }
+
+      .ball {
+        width: clamp(105px, 34vw, 145px);
+        height: clamp(105px, 34vw, 145px);
+
+        font-size: clamp(30px, 10vw, 42px);
+      }
+
+      .bingo-row {
+        grid-template-columns:
+          clamp(30px, 10vw, 40px)
+          1fr;
+
+        gap: 3px;
+      }
+
+      .numbers {
+        gap: 2px;
+        padding: 3px;
+      }
+
+      .drawn-number {
+        width: min(100%, 4.2vh);
+
+        font-size: clamp(8px, 2.7vw, 12px);
+      }
+
+      .letter {
+        font-size: clamp(17px, 6vw, 23px);
+      }
+    }
+
+
+    /* ========================================
+       VERY NARROW DEVICES
+       ======================================== */
+
+    @media (max-width: 360px) {
+
+      .game-layout {
+        grid-template-columns:
+          minmax(105px, 0.65fr)
+          minmax(160px, 1.35fr);
+      }
+
+      .ball {
+        width: 100px;
+        height: 100px;
+
+        font-size: 29px;
+      }
+
+      #drawButton {
+        font-size: 11px;
+      }
+
+      #resetButton {
+        font-size: 10px;
+      }
+
+      .counter {
+        font-size: 9px;
+      }
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+  <main class="container">
+
+    <h1>BINGO</h1>
+
+
+    <div class="game-layout">
+
+
+      <!-- LEFT SIDE -->
+
+      <section class="draw-area">
+
+        <div
+          class="ball"
+          id="ball"
+          aria-live="polite"
+          aria-label="Latest BINGO number"
+        >
+          ?
+        </div>
+
+
+        <div class="button-area">
+
+          <button
+            id="drawButton"
+            type="button"
+          >
+            DRAW NUMBER
+          </button>
+
+
+          <button
+            id="resetButton"
+            type="button"
+          >
+            Reset Game
+          </button>
+
+        </div>
+
+
+        <div
+          class="counter"
+          id="counter"
+        >
+          0 of 75 numbers drawn
+        </div>
+
+      </section>
+
+
+
+      <!-- RIGHT SIDE -->
+
+      <section class="history-area">
+
+        <div class="history-title">
+          Drawn Numbers
+        </div>
+
+
+        <div class="bingo-list">
+
+
+          <!-- B -->
+
+          <div class="bingo-row">
+
+            <div class="letter letter-B">
+              B
+            </div>
+
+            <div
+              class="numbers"
+              id="numbers-B"
+            ></div>
+
+          </div>
+
+
+          <!-- I -->
+
+          <div class="bingo-row">
+
+            <div class="letter letter-I">
+              I
+            </div>
+
+            <div
+              class="numbers"
+              id="numbers-I"
+            ></div>
+
+          </div>
+
+
+          <!-- N -->
+
+          <div class="bingo-row">
+
+            <div class="letter letter-N">
+              N
+            </div>
+
+            <div
+              class="numbers"
+              id="numbers-N"
+            ></div>
+
+          </div>
+
+
+          <!-- G -->
+
+          <div class="bingo-row">
+
+            <div class="letter letter-G">
+              G
+            </div>
+
+            <div
+              class="numbers"
+              id="numbers-G"
+            ></div>
+
+          </div>
+
+
+          <!-- O -->
+
+          <div class="bingo-row">
+
+            <div class="letter letter-O">
+              O
+            </div>
+
+            <div
+              class="numbers"
+              id="numbers-O"
+            ></div>
+
+          </div>
+
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+
+  <script>
+
+    let availableNumbers = [];
+    let drawnNumbers = [];
+
+
+    /* ========================================
+       GET BINGO LETTER
+       ======================================== */
+
+    function getBingoLetter(number) {
+
+      if (number <= 15) {
+        return "B";
+      }
+
+      if (number <= 30) {
+        return "I";
+      }
+
+      if (number <= 45) {
+        return "N";
+      }
+
+      if (number <= 60) {
+        return "G";
+      }
+
+      return "O";
+    }
+
+
+    /* ========================================
+       RESET GAME
+       ======================================== */
+
+    function resetGame() {
+
+      availableNumbers = [];
+
+      drawnNumbers = [];
+
+
+      /* Numbers 1 to 75 */
+
+      for (let i = 1; i <= 75; i++) {
+        availableNumbers.push(i);
+      }
+
+
+      const ball =
+        document.getElementById("ball");
+
+
+      ball.textContent = "?";
+
+
+      ball.classList.remove(
+        "ball-B",
+        "ball-I",
+        "ball-N",
+        "ball-G",
+        "ball-O"
+      );
+
+
+      document
+        .getElementById("drawButton")
+        .disabled = false;
+
+
+      updateDisplay();
+    }
+
+
+    /* ========================================
+       DRAW RANDOM NUMBER
+       ======================================== */
+
+    function drawNumber() {
+
+      if (availableNumbers.length === 0) {
+        return;
+      }
+
+
+      const randomIndex =
+        Math.floor(
+          Math.random() *
+          availableNumbers.length
+        );
+
+
+      /*
+       * Remove the selected number
+       * so it cannot appear again.
+       */
+
+      const number =
+        availableNumbers.splice(
+          randomIndex,
+          1
+        )[0];
+
+
+      drawnNumbers.push(number);
+
+
+      const letter =
+        getBingoLetter(number);
+
+
+      const ball =
+        document.getElementById("ball");
+
+
+      /* Latest number */
+
+      ball.textContent =
+        letter + " " + number;
+
+
+      /* Remove old ball color */
+
+      ball.classList.remove(
+        "ball-B",
+        "ball-I",
+        "ball-N",
+        "ball-G",
+        "ball-O"
+      );
+
+
+      /* Apply new letter color */
+
+      ball.classList.add(
+        "ball-" + letter
+      );
+
+
+      /*
+       * Disable drawing after
+       * all 75 numbers are used.
+       */
+
+      if (availableNumbers.length === 0) {
+
+        document
+          .getElementById("drawButton")
+          .disabled = true;
+      }
+
+
+      updateDisplay();
+    }
+
+
+    /* ========================================
+       UPDATE DISPLAY
+       ======================================== */
+
+    function updateDisplay() {
+
+      document
+        .getElementById("counter")
+        .textContent =
+          drawnNumbers.length +
+          " of 75 numbers drawn";
+
+
+      const letters =
+        ["B", "I", "N", "G", "O"];
+
+
+      /* Clear all rows */
+
+      letters.forEach(function(letter) {
+
+        document
+          .getElementById(
+            "numbers-" + letter
+          )
+          .innerHTML = "";
+      });
+
+
+      /*
+       * Group the drawn numbers
+       * by BINGO letter.
+       */
+
+      letters.forEach(function(letter) {
+
+        const numbersForLetter =
+          drawnNumbers
+            .filter(function(number) {
+              return getBingoLetter(number) === letter;
+            })
+            .sort(function(a, b) {
+              return a - b;
+            });
+
+
+        numbersForLetter.forEach(function(number) {
+
+          const element =
+            document.createElement("div");
+
+
+          element.className =
+            "drawn-number";
+
+
+          element.textContent =
+            number;
+
+
+          document
+            .getElementById(
+              "numbers-" + letter
+            )
+            .appendChild(element);
+
+        });
+
+      });
+    }
+
+
+    /* ========================================
+       BUTTON EVENTS
+       ======================================== */
+
+    document
+      .getElementById("drawButton")
+      .addEventListener(
+        "click",
+        drawNumber
+      );
+
+
+    document
+      .getElementById("resetButton")
+      .addEventListener(
+        "click",
+        resetGame
+      );
+
+
+    /* ========================================
+       INITIALIZE
+       ======================================== */
+
+    resetGame();
+
+  </script>
+
+</body>
+</html>
