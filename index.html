@@ -1,970 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>BINGO Number Draw</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: #f1f5f9;
-      color: #172033;
-
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      padding: clamp(6px, 1.5vmin, 16px);
-    }
-
-
-    /* ========================================
-       MAIN APPLICATION
-       ======================================== */
-
-    .container {
-      width: min(100%, 950px);
-      height: calc(100dvh - clamp(12px, 3vmin, 32px));
-      max-height: 1000px;
-
-      display: flex;
-      flex-direction: column;
-
-      background: white;
-
-      padding: clamp(10px, 2vmin, 22px);
-
-      border-radius: clamp(10px, 2vmin, 18px);
-
-      box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.10);
-
-      overflow: hidden;
-    }
-
-
-    /* ========================================
-       TITLE
-       ======================================== */
-
-    h1 {
-      flex-shrink: 0;
-
-      text-align: center;
-
-      margin:
-        0
-        0
-        clamp(6px, 1.5vh, 15px);
-
-      color: #2563eb;
-
-      font-size: clamp(22px, 4vh, 38px);
-
-      letter-spacing: clamp(4px, 1vw, 10px);
-    }
-
-
-    /* ========================================
-       MAIN TWO-COLUMN LAYOUT
-       ======================================== */
-
-    .game-layout {
-      flex: 1;
-      min-height: 0;
-
-      display: grid;
-
-      grid-template-columns:
-        minmax(180px, 0.8fr)
-        minmax(260px, 1.2fr);
-
-      gap: clamp(10px, 2.5vw, 30px);
-
-      align-items: stretch;
-    }
-
-
-    /* ========================================
-       LEFT SIDE
-       ======================================== */
-
-    .draw-area {
-      min-height: 0;
-
-      display: flex;
-      flex-direction: column;
-
-      justify-content: center;
-      align-items: center;
-
-      text-align: center;
-    }
-
-
-    /* ========================================
-       CURRENT NUMBER BALL
-       ======================================== */
-
-    .ball {
-      width: clamp(120px, 24vmin, 230px);
-      height: clamp(120px, 24vmin, 230px);
-
-      flex-shrink: 0;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      margin-bottom: clamp(10px, 3vh, 30px);
-
-      border-radius: 50%;
-
-      background: #64748b;
-
-      color: white;
-
-      font-size: clamp(34px, 7vmin, 65px);
-      font-weight: bold;
-
-      box-shadow:
-        0 10px 25px rgba(0, 0, 0, 0.20);
-
-      transition:
-        background-color 0.25s ease,
-        transform 0.15s ease;
-    }
-
-
-    /* Ball colors */
-
-    .ball-B {
-      background: #2563eb;
-    }
-
-    .ball-I {
-      background: #dc2626;
-    }
-
-    .ball-N {
-      background: #16a34a;
-    }
-
-    .ball-G {
-      background: #d97706;
-    }
-
-    .ball-O {
-      background: #7c3aed;
-    }
-
-
-    /* ========================================
-       BUTTONS
-       ======================================== */
-
-    .button-area {
-      width: min(100%, 300px);
-
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-
-      gap: clamp(5px, 1vh, 10px);
-    }
-
-    button {
-      border: none;
-      border-radius: 9px;
-
-      padding: clamp(8px, 1.7vh, 14px);
-
-      font-family: inherit;
-      font-weight: bold;
-
-      cursor: pointer;
-    }
-
-    #drawButton {
-      width: 100%;
-
-      background: #16a34a;
-      color: white;
-
-      font-size: clamp(13px, 2.2vh, 19px);
-    }
-
-    #drawButton:hover {
-      background: #15803d;
-    }
-
-    #drawButton:active {
-      transform: scale(0.98);
-    }
-
-    #drawButton:disabled {
-      background: #94a3b8;
-      cursor: not-allowed;
-    }
-
-    #resetButton {
-      align-self: center;
-
-      background: #e2e8f0;
-      color: #172033;
-
-      font-size: clamp(11px, 1.8vh, 15px);
-    }
-
-    #resetButton:hover {
-      background: #cbd5e1;
-    }
-
-    button:focus-visible {
-      outline: 3px solid #f59e0b;
-      outline-offset: 2px;
-    }
-
-
-    /* ========================================
-       COUNTER
-       ======================================== */
-
-    .counter {
-      margin-top: clamp(5px, 1.5vh, 14px);
-
-      color: #64748b;
-
-      font-size: clamp(10px, 1.8vh, 14px);
-    }
-
-
-    /* ========================================
-       RIGHT HISTORY AREA
-       ======================================== */
-
-    .history-area {
-      min-width: 0;
-      min-height: 0;
-
-      display: flex;
-      flex-direction: column;
-
-      border-left: 2px solid #e2e8f0;
-
-      padding-left: clamp(8px, 2vw, 20px);
-    }
-
-    .history-title {
-      flex-shrink: 0;
-
-      text-align: center;
-
-      margin-bottom: clamp(5px, 1vh, 10px);
-
-      font-size: clamp(12px, 2vh, 18px);
-      font-weight: bold;
-    }
-
-
-    /* ========================================
-       BINGO TRACKER
-       ======================================== */
-
-    .bingo-list {
-      flex: 1;
-      min-height: 0;
-
-      display: grid;
-
-      grid-template-rows: repeat(5, 1fr);
-
-      gap: clamp(4px, 1vh, 9px);
-    }
-
-
-    .bingo-row {
-      min-height: 0;
-
-      display: grid;
-
-      grid-template-columns:
-        clamp(36px, 6vmin, 58px)
-        1fr;
-
-      gap: clamp(4px, 1vw, 10px);
-    }
-
-
-    /* ========================================
-       BINGO LETTER
-       ======================================== */
-
-    .letter {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      border-radius: clamp(5px, 1vmin, 10px);
-
-      color: white;
-
-      font-size: clamp(18px, 4vh, 30px);
-      font-weight: bold;
-    }
-
-    .letter-B {
-      background: #2563eb;
-    }
-
-    .letter-I {
-      background: #dc2626;
-    }
-
-    .letter-N {
-      background: #16a34a;
-    }
-
-    .letter-G {
-      background: #d97706;
-    }
-
-    .letter-O {
-      background: #7c3aed;
-    }
-
-
-    /* ========================================
-       DRAWN NUMBERS
-       ======================================== */
-
-    .numbers {
-      min-width: 0;
-      min-height: 0;
-
-      display: grid;
-
-      /*
-       * Maximum 15 numbers exist per letter.
-       * Five columns x three rows ensures
-       * every possible number fits.
-       */
-      grid-template-columns: repeat(5, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-
-      gap: clamp(2px, 0.5vmin, 5px);
-
-      padding: clamp(3px, 0.8vmin, 7px);
-
-      background: #f8fafc;
-
-      border: 1px solid #e2e8f0;
-      border-radius: clamp(5px, 1vmin, 10px);
-    }
-
-
-    .drawn-number {
-      min-width: 0;
-      min-height: 0;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      background: white;
-
-      border: 1px solid #cbd5e1;
-      border-radius: 50%;
-
-      aspect-ratio: 1 / 1;
-
-      justify-self: center;
-      align-self: center;
-
-      width: min(100%, 4.5vh);
-
-      font-size: clamp(9px, 1.8vh, 14px);
-      font-weight: bold;
-    }
-
-
-    /* ========================================
-       SMALL / SHORT WINDOWS
-       ======================================== */
-
-    @media (max-height: 600px) {
-
-      .container {
-        padding: 8px 12px;
-      }
-
-      h1 {
-        font-size: 22px;
-        margin-bottom: 5px;
-      }
-
-      .ball {
-        width: 115px;
-        height: 115px;
-
-        font-size: 35px;
-
-        margin-bottom: 8px;
-      }
-
-      .history-title {
-        margin-bottom: 4px;
-      }
-
-      .bingo-list {
-        gap: 3px;
-      }
-
-      .button-area {
-        gap: 3px;
-      }
-
-      #drawButton {
-        padding: 7px;
-      }
-
-      #resetButton {
-        padding: 6px 10px;
-      }
-
-      .counter {
-        margin-top: 4px;
-      }
-    }
-
-
-    /* ========================================
-       NARROW PORTRAIT WINDOWS
-       ======================================== */
-
-    @media (max-width: 500px) {
-
-      body {
-        padding: 5px;
-      }
-
-      .container {
-        height: calc(100dvh - 10px);
-        padding: 8px;
-        border-radius: 10px;
-      }
-
-      h1 {
-        font-size: clamp(20px, 7vw, 28px);
-        margin-bottom: 7px;
-      }
-
-      .game-layout {
-        grid-template-columns:
-          minmax(125px, 0.72fr)
-          minmax(180px, 1.28fr);
-
-        gap: 7px;
-      }
-
-      .history-area {
-        padding-left: 6px;
-      }
-
-      .ball {
-        width: clamp(105px, 34vw, 145px);
-        height: clamp(105px, 34vw, 145px);
-
-        font-size: clamp(30px, 10vw, 42px);
-      }
-
-      .bingo-row {
-        grid-template-columns:
-          clamp(30px, 10vw, 40px)
-          1fr;
-
-        gap: 3px;
-      }
-
-      .numbers {
-        gap: 2px;
-        padding: 3px;
-      }
-
-      .drawn-number {
-        width: min(100%, 4.2vh);
-
-        font-size: clamp(8px, 2.7vw, 12px);
-      }
-
-      .letter {
-        font-size: clamp(17px, 6vw, 23px);
-      }
-    }
-
-
-    /* ========================================
-       VERY NARROW DEVICES
-       ======================================== */
-
-    @media (max-width: 360px) {
-
-      .game-layout {
-        grid-template-columns:
-          minmax(105px, 0.65fr)
-          minmax(160px, 1.35fr);
-      }
-
-      .ball {
-        width: 100px;
-        height: 100px;
-
-        font-size: 29px;
-      }
-
-      #drawButton {
-        font-size: 11px;
-      }
-
-      #resetButton {
-        font-size: 10px;
-      }
-
-      .counter {
-        font-size: 9px;
-      }
-    }
-
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Bingo</title>
+<style>
+:root{--navy:#172554;--blue:#2563eb;--light:#eff6ff;--ink:#172033;--muted:#64748b;--line:#dbe3ef;--green:#16a34a;--gold:#f59e0b}
+*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:linear-gradient(120deg,#172554,#1d4ed8);color:white;padding:14px 12px;text-align:center}
+header h1{margin:0;font-size:clamp(22px,4vw,30px);letter-spacing:1.5px}header p{margin:3px 0 0;color:#dbeafe;font-size:12px}
+main{max-width:980px;margin:14px auto;padding:0 10px 24px}.panel{background:white;border:1px solid var(--line);border-radius:13px;padding:14px;box-shadow:0 5px 16px #17255408;margin-bottom:10px}
+h2{margin:0 0 14px;font-size:20px}h3{margin:0 0 10px;font-size:16px}
+label{display:block;font-weight:650;font-size:13px;margin:0 0 6px;color:#334155}
+input,select,button{font:inherit}input,select{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;background:white;color:var(--ink)}
+button{border:0;border-radius:10px;padding:11px 15px;background:var(--blue);color:white;font-weight:700;cursor:pointer;transition:.15s}
+button:hover{filter:brightness(.94);transform:translateY(-1px)}button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+button.secondary{background:#e8eef8;color:#1e3a8a}button.danger{background:#dc2626}button.success{background:var(--green)}
+.row{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.field{flex:1;min-width:180px}.hidden{display:none!important}
+.role-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.role-card{padding:22px 14px;border:2px solid var(--line);border-radius:14px;text-align:center;cursor:pointer;background:#fbfdff}
+.role-card:hover{border-color:var(--blue);background:var(--light)}.role-card strong{display:block;font-size:19px;margin:6px}
+.status{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:99px;background:#f1f5f9;color:#475569;font-size:12px;font-weight:700}
+.dot{width:8px;height:8px;border-radius:50%;background:#94a3b8}.dot.on{background:#22c55e}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.bingo-letters{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.letter-col{min-width:0;background:#f8fafc;border:1px solid var(--line);border-radius:9px;padding:7px 3px;text-align:center}
+.letter{font-size:20px;font-weight:900;color:var(--blue);margin-bottom:5px}
+.called-list{display:flex;flex-direction:column;gap:5px;min-height:25px}
+.ball{display:inline-flex;justify-content:center;align-items:center;margin:0 auto;width:30px;height:30px;border-radius:50%;background:#dbeafe;color:#1e40af;font-weight:800;font-size:12px}
+.ball.latest{background:var(--gold);color:#422006;box-shadow:0 0 0 3px #fef3c7}
+.latest-box{display:flex;align-items:center;gap:11px;background:#eff6ff;border:1px solid #bfdbfe;padding:10px;border-radius:11px;margin:9px 0}
+.latest-ball{width:58px;height:58px;flex:0 0 58px;border-radius:50%;background:var(--blue);color:white;display:grid;place-items:center;font-size:22px;font-weight:900}
+.latest-box small{color:var(--muted);font-weight:700}.latest-box strong{font-size:20px;display:block}
+.card-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;max-width:440px;margin:8px auto}
+.cell{aspect-ratio:1;border:1px solid #cbd5e1;border-radius:8px;background:white;display:grid;place-items:center;font-size:clamp(14px,3vw,20px);font-weight:800;color:#1e293b;cursor:pointer;position:relative;user-select:none;min-width:0;padding:0}
+.cell.head{background:#172554;color:white;cursor:default;font-size:20px}
+.cell.marked{background:#bbf7d0;border-color:#16a34a;color:#14532d}
+.cell.free{background:#fef3c7;border-color:#f59e0b;color:#92400e;cursor:default;font-size:13px}
+.cell.pattern:after{content:"";position:absolute;inset:3px;border:2px dashed #f59e0b;border-radius:7px;pointer-events:none}
+.cell:disabled{cursor:default}
+.pattern-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;max-width:280px}
+.pattern-cell{aspect-ratio:1;border:1px solid #cbd5e1;border-radius:7px;background:#f8fafc;color:#64748b;display:grid;place-items:center;cursor:pointer;font-weight:800;padding:0}
+.pattern-cell.active{background:#dbeafe;border:2px solid var(--blue);color:#1d4ed8}
+.pattern-cell.center{background:#fef3c7}
+.pattern-help{font-size:12px;color:var(--muted);margin-top:8px}
+.notice{padding:12px 14px;border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;font-weight:700;margin-top:12px}
+.warning{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+.player-strip{margin-top:16px}.player-strip .bingo-letters{gap:5px}.player-strip .letter-col{padding:7px 3px}.player-strip .letter{font-size:18px}.player-strip .ball{width:29px;height:29px}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+@media(max-width:620px){
+ main{margin:8px auto;padding:0 7px 18px}
+ .panel{padding:11px;border-radius:11px;margin-bottom:8px}
+ h2{font-size:17px;margin-bottom:9px}h3{font-size:14px;margin-bottom:8px}
+ .role-grid{grid-template-columns:1fr}
+ .bingo-letters{gap:3px}.letter-col{padding:6px 1px;border-radius:7px}
+ .letter{font-size:17px;margin-bottom:4px}.ball{width:26px;height:26px;font-size:11px}
+ .card-grid{gap:3px;margin:7px auto;width:min(100%,440px,48dvh)}
+ .cell{border-radius:6px;font-size:clamp(13px,4vw,19px)}
+ .cell.head{font-size:17px}
+ .row{gap:7px}.row>*{min-width:0}.row .field{flex:1 1 100%}.row button{flex:1 1 auto;padding:10px 9px}
+ .latest-ball{width:50px;height:50px;flex-basis:50px;font-size:19px}
+ .latest-box{padding:8px;gap:9px}
+ .topline{margin-bottom:8px}
+ .zoom-control{font-size:11px}.zoom-control input{width:75px}
+ .status{padding:5px 8px;font-size:11px}
+ .player-strip .letter-col{padding:5px 1px}
+ .player-strip .letter{font-size:16px}.player-strip .ball{width:24px;height:24px}
+ .pattern-grid{gap:3px;max-width:230px}
+}
+</style>
 </head>
-
-
 <body>
+<header><h1>🎱 LIVE BINGO</h1><p>One room. One caller. Everyone plays together.</p></header>
+<main>
+<section class="panel" id="setup">
+  <h2>Join a Bingo Room</h2>
+  <p class="small">Use the same room code on the drawer's device and every player's device. The room synchronizes through Firebase.</p>
+  <div class="row">
+    <div class="field"><label for="roomInput">Room code</label><input id="roomInput" maxlength="20" placeholder="e.g. FAMILY2026" autocomplete="off"></div>
+    <button id="joinDrawer">Join as Drawer</button><button id="joinPlayer" class="secondary">Join as Player</button>
+  </div>
+  <p id="setupError" class="small" style="color:#dc2626"></p>
+  <hr>
+  <h3>Firebase setup required</h3>
+  <p class="small">Before using the game, paste your Firebase Realtime Database configuration into the <code>firebaseConfig</code> object near the bottom of this HTML file. Enable Realtime Database in your Firebase project.</p>
+</section>
 
-  <main class="container">
-
-    <h1>BINGO</h1>
-
-
-    <div class="game-layout">
-
-
-      <!-- LEFT SIDE -->
-
-      <section class="draw-area">
-
-        <div
-          class="ball"
-          id="ball"
-          aria-live="polite"
-          aria-label="Latest BINGO number"
-        >
-          ?
-        </div>
-
-
-        <div class="button-area">
-
-          <button
-            id="drawButton"
-            type="button"
-          >
-            DRAW NUMBER
-          </button>
-
-
-          <button
-            id="resetButton"
-            type="button"
-          >
-            Reset Game
-          </button>
-
-        </div>
-
-
-        <div
-          class="counter"
-          id="counter"
-        >
-          0 of 75 numbers drawn
-        </div>
-
-      </section>
-
-
-
-      <!-- RIGHT SIDE -->
-
-      <section class="history-area">
-
-        <div class="history-title">
-          Drawn Numbers
-        </div>
-
-
-        <div class="bingo-list">
-
-
-          <!-- B -->
-
-          <div class="bingo-row">
-
-            <div class="letter letter-B">
-              B
-            </div>
-
-            <div
-              class="numbers"
-              id="numbers-B"
-            ></div>
-
-          </div>
-
-
-          <!-- I -->
-
-          <div class="bingo-row">
-
-            <div class="letter letter-I">
-              I
-            </div>
-
-            <div
-              class="numbers"
-              id="numbers-I"
-            ></div>
-
-          </div>
-
-
-          <!-- N -->
-
-          <div class="bingo-row">
-
-            <div class="letter letter-N">
-              N
-            </div>
-
-            <div
-              class="numbers"
-              id="numbers-N"
-            ></div>
-
-          </div>
-
-
-          <!-- G -->
-
-          <div class="bingo-row">
-
-            <div class="letter letter-G">
-              G
-            </div>
-
-            <div
-              class="numbers"
-              id="numbers-G"
-            ></div>
-
-          </div>
-
-
-          <!-- O -->
-
-          <div class="bingo-row">
-
-            <div class="letter letter-O">
-              O
-            </div>
-
-            <div
-              class="numbers"
-              id="numbers-O"
-            ></div>
-
-          </div>
-
-
-        </div>
-
-      </section>
-
+<section id="game" class="hidden">
+  <div class="topline">
+    <div><span class="status"><span class="dot" id="connectionDot"></span><span id="connectionText">Connecting…</span></span> <span class="status">Room: <b id="roomLabel"></b></span></div>
+    <div class="row" style="align-items:center;gap:10px">
+      <label class="zoom-control" for="appZoom">App size <input id="appZoom" type="range" min="70" max="110" value="100" step="5"><span id="zoomValue">100%</span></label>
+      <button class="secondary" id="leaveBtn">Leave room</button>
     </div>
+  </div>
 
-  </main>
+  <section id="drawerView" class="hidden">
+    <div class="panel">
+      <h2>Drawer Control Center</h2>
+      <div class="latest-box"><div class="latest-ball" id="drawerLatest">—</div><div><small>LAST NUMBER DRAWN</small><strong id="drawerLatestText">Waiting for the first number</strong><span class="small" id="drawCount">0 numbers called</span></div></div>
+      <div class="row">
+        <button id="drawBtn" class="success">Draw Next Number</button>
+      </div>
+      <p class="small">Numbers are drawn without repeats. B: 1–15 · I: 16–30 · N: 31–45 · G: 46–60 · O: 61–75.</p>
+    </div>
+    <div class="panel">
+      <h2>Winning Pattern</h2>
+      <div class="row">
+        <div class="field"><label for="patternSelect">Choose a pattern</label><select id="patternSelect">
+          <option value="anyline">Any line (horizontal, vertical or diagonal)</option>
+          <option value="horizontal">Horizontal line (middle row)</option>
+          <option value="vertical">Vertical line (middle column)</option>
+          <option value="diagonal">Diagonal X</option>
+          <option value="fourcorners">Four corners</option>
+          <option value="blackout">Blackout (all spaces)</option>
+          <option value="custom">Custom pattern</option>
+        </select></div>
+        <button id="savePatternBtn">Apply Pattern</button>
+        <button id="startGameBtn" class="success" disabled>▶ Start Game</button>
+      </div>
+      <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:14px">
+        <div class="pattern-grid" id="patternEditor"></div>
+        <p class="small" style="max-width:300px">For Custom Pattern, tap the squares to choose the winning spaces. The center FREE space is automatically satisfied. The pattern is shared with every player.</p>
+      </div>
+      <div id="patternMessage" class="small"></div>
+    </div>
+    <div class="panel"><h2>Called Numbers by B-I-N-G-O</h2><div class="bingo-letters" id="drawerCalls"></div></div>
+    <div class="panel">
+      <h2>Room Activity</h2><div id="playerCount" class="small">Players connected: 0</div>
+      <button id="resetBtn" class="danger" style="margin-top:12px">Reset Game</button>
+      <p class="small">Reset clears called numbers and player cards/marks for this room. It does not delete the room itself.</p>
+    </div>
+  </section>
 
+  <section id="playerView" class="hidden">
+    <div class="panel">
+      <div class="topline"><div><h2 style="margin:0">Your Bingo Card</h2><span class="small" id="cardIdLabel">Card ready</span></div><button id="rerollBtn" class="secondary">↻ Get New Card</button></div>
+      <div class="card-grid" id="playerCard"></div>
+      <div class="small" style="text-align:center">Tap a number to mark it. Only numbers already called by the drawer can be marked.</div>
+      <div id="waitingStart" class="notice warning">⏳ Waiting for the drawer to start the game. You can change your card until then.</div>
+      <div id="bingoNotice" class="notice hidden">🎉 BINGO! Your selected pattern is complete!</div>
+      <div id="playerHint" class="small" style="text-align:center;margin-top:10px"></div>
+    </div>
+    <div class="panel player-strip"><h3>Numbers Called by B-I-N-G-O</h3><div class="bingo-letters" id="playerCalls"></div></div>
+    <div class="panel"><h3>Winning Pattern</h3><div id="playerPatternText" class="small"></div><div class="pattern-grid" id="playerPatternGrid" style="margin-top:10px"></div></div>
+  </section>
+</section>
+</main>
 
-  <script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+// 1) Replace these values with your Firebase project's Web App configuration.
+const firebaseConfig = {
+  apiKey: "AIzaSyCV6lVHoPte0S1PIh89eS7rBeV3F6If0MA",
+  authDomain: "bibingo-bbf8f.firebaseapp.com",
+  databaseURL: "https://bibingo-bbf8f-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "bibingo-bbf8f",
+  storageBucket: "bibingo-bbf8f.firebasestorage.app",
+  messagingSenderId: "997957264737",
+  appId: "1:997957264737:web:5cdaab986ae9d9a11d5120"
+};
 
-    let availableNumbers = [];
-    let drawnNumbers = [];
-
-
-    /* ========================================
-       GET BINGO LETTER
-       ======================================== */
-
-    function getBingoLetter(number) {
-
-      if (number <= 15) {
-        return "B";
-      }
-
-      if (number <= 30) {
-        return "I";
-      }
-
-      if (number <= 45) {
-        return "N";
-      }
-
-      if (number <= 60) {
-        return "G";
-      }
-
-      return "O";
+let db=null, room="", role="", roomRef=null, gameData={}, myId="";
+let customPattern=Array(25).fill(false), currentPattern=[];
+const letters=["B","I","N","G","O"];
+const ranges=[[1,15],[16,30],[31,45],[46,60],[61,75]];
+const $=id=>document.getElementById(id);
+const patterns={
+  anyline: "Any line (horizontal, vertical or diagonal)",
+  horizontal:"Horizontal line (middle row)",
+  vertical:"Vertical line (middle column)",
+  diagonal:"Diagonal X",
+  fourcorners:"Four corners",
+  blackout:"Blackout",
+  custom:"Custom pattern"
+};
+function defaultPattern(key){
+  const a=Array(25).fill(false);
+  if(key==="horizontal") for(let c=0;c<5;c++)a[10+c]=true;
+  else if(key==="vertical")for(let r=0;r<5;r++)a[r*5+2]=true;
+  else if(key==="diagonal")for(let i=0;i<5;i++){a[i*5+i]=true;a[i*5+4-i]=true;}
+  else if(key==="fourcorners")[0,4,20,24].forEach(i=>a[i]=true);
+  else if(key==="blackout")a.fill(true);
+  else if(key==="custom")return customPattern.slice();
+  return a;
+}
+function activePatterns(key,custom){
+  if(key==="anyline"){
+    const lines=[];for(let r=0;r<5;r++)lines.push(Array.from({length:25},(_,i)=>Math.floor(i/5)===r));
+    for(let c=0;c<5;c++)lines.push(Array.from({length:25},(_,i)=>i%5===c));
+    lines.push(Array.from({length:25},(_,i)=>Math.floor(i/5)===i%5));
+    lines.push(Array.from({length:25},(_,i)=>Math.floor(i/5)+i%5===4));
+    return lines;
+  }
+  return [key==="custom"?custom:defaultPattern(key)];
+}
+function patternLabel(){return patterns[gameData.patternKey]||patterns.anyline;}
+function randomCard(){
+  const nums=[];
+  for(let c=0;c<5;c++){
+    const [lo,hi]=ranges[c],arr=Array.from({length:hi-lo+1},(_,i)=>lo+i);
+    for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+    nums.push(arr.slice(0,5));
+  }
+  const card=Array(25).fill(0);
+  for(let c=0;c<5;c++)for(let r=0;r<5;r++)card[r*5+c]=nums[c][r];
+  card[12]="FREE";return card;
+}
+function getLetter(n){return letters[Math.floor((n-1)/15)];}
+function called(){return gameData.called||[];}
+function isCalled(n){return called().includes(Number(n));}
+function drawCalls(target){
+  target.innerHTML="";
+  letters.forEach((l,i)=>{
+    const col=document.createElement("div");col.className="letter-col";
+    const head=document.createElement("div");head.className="letter";head.textContent=l;col.appendChild(head);
+    const list=document.createElement("div");list.className="called-list";
+    called().filter(n=>Math.floor((n-1)/15)===i).forEach(n=>{
+      const b=document.createElement("span");b.className="ball"+(called()[called().length-1]===n?" latest":"");b.textContent=n;list.appendChild(b);
+    });
+    col.appendChild(list);target.appendChild(col);
+  });
+}
+function renderPattern(target,pattern,interactive=false){
+  target.innerHTML="";
+  for(let i=0;i<25;i++){
+    const b=document.createElement("button");b.type="button";b.className="pattern-cell"+(pattern[i]?" active":"")+(i===12?" center":"");
+    b.textContent=i===12?"★":(pattern[i]?"✓":"·");
+    if(!interactive)b.disabled=true;
+    else b.addEventListener("click",()=>{customPattern[i]=!customPattern[i];renderPattern(target,customPattern,true);});
+    target.appendChild(b);
+  }
+}
+function renderDrawer(){
+  const last=called().at(-1);
+  $("drawerLatest").textContent=last?getLetter(last)+last:"—";
+  $("drawerLatestText").textContent=last?`${getLetter(last)}-${last}`:"Waiting for the first number";
+  $("drawCount").textContent=`${called().length} of 75 numbers called`;
+  $("drawBtn").disabled=!gameData.started||called().length>=75;
+  $("savePatternBtn").disabled=!!gameData.started;
+  $("patternSelect").disabled=!!gameData.started;
+  $("startGameBtn").disabled=!!gameData.started||!gameData.patternReady;
+  $("startGameBtn").textContent=gameData.started?"✓ Game Started":"▶ Start Game";
+  drawCalls($("drawerCalls"));
+  $("playerCount").textContent=`Players with cards: ${Object.keys(gameData.players||{}).length}`;
+  const key=gameData.patternKey||"anyline";
+  $("patternSelect").value=key;
+  const pat=gameData.customPattern||defaultPattern(key);
+  renderPattern($("patternEditor"),pat,key==="custom");
+  $("patternMessage").textContent=`Current pattern: ${patternLabel()}`;
+}
+function hasBingo(card,marks){
+  const selected=gameData.customPattern||defaultPattern(gameData.patternKey||"anyline");
+  const marked=marks||[];
+  const lines=activePatterns(gameData.patternKey||"anyline",selected);
+  return lines.some(line=>line.every((on,i)=>!on||i===12||marked.includes(i)));
+}
+function renderPlayer(){
+  const p=gameData.players?.[myId];if(!p)return;
+  const card=p.card||[],marks=p.marks||[];
+  $("cardIdLabel").textContent=`Card • ${p.cardId||"—"}`;
+  $("playerCard").innerHTML="";
+  letters.forEach(l=>{const h=document.createElement("div");h.className="cell head";h.textContent=l;$("playerCard").appendChild(h);});
+  card.forEach((n,i)=>{
+    const b=document.createElement("button");b.type="button";
+    b.className="cell"+(n==="FREE"?" free":"")+(marks.includes(i)?" marked":"");
+    b.textContent=n==="FREE"?"FREE":n;
+    if(i===12)b.disabled=true;
+    else if(!isCalled(n))b.disabled=true;
+    else b.addEventListener("click",()=>toggleMark(i));
+    $("playerCard").appendChild(b);
+  });
+  $("bingoNotice").classList.toggle("hidden",!hasBingo(card,marks));
+  $("waitingStart").classList.toggle("hidden",!!gameData.started);
+  $("rerollBtn").disabled=!!gameData.started;
+  $("playerHint").textContent=!gameData.started?"You can reroll your card until the drawer starts the game.":(called().length?`${called().length} numbers have been called. Select any called number on your card.`:"Game started! Waiting for the first number.");
+  drawCalls($("playerCalls"));
+  const pat=gameData.customPattern||defaultPattern(gameData.patternKey||"anyline");
+  renderPattern($("playerPatternGrid"),pat,false);
+  $("playerPatternText").textContent=`${patternLabel()} • Updated live by the drawer.`;
+}
+async function updateRoom(patch){if(!roomRef)return;await roomRef.update(patch);}
+async function drawNumber(n){
+  const c=called();if(c.includes(n)||n<1||n>75||c.length>=75)return;
+  await updateRoom({called:[...c,n],updatedAt:Date.now()});
+}
+async function toggleMark(index){
+  const p=gameData.players?.[myId];if(!p)return;
+  const marks=(p.marks||[]).slice();const at=marks.indexOf(index);
+  if(at>=0)marks.splice(at,1);else marks.push(index);
+  await roomRef.child("players/"+myId+"/marks").set(marks);
+}
+async function createOrReroll(){
+  if(!roomRef||!myId)throw new Error("Not connected to a Bingo room.");
+  if(gameData.started)throw new Error("The game has already started. Card changes are locked.");
+  const card=randomCard(),cardId=Math.random().toString(36).slice(2,8).toUpperCase();
+  await roomRef.child("players/"+myId).set({card,marks:[],cardId,joinedAt:Date.now(),updatedAt:Date.now()});
+}
+function showGame(){
+  $("setup").classList.add("hidden");$("game").classList.remove("hidden");
+  $("game").style.zoom=Number($("appZoom").value)/100;
+  $("zoomValue").textContent=$("appZoom").value+"%";
+  $("drawerView").classList.toggle("hidden",role!=="drawer");
+  $("playerView").classList.toggle("hidden",role!=="player");
+  $("roomLabel").textContent=room;
+}
+async function join(which){
+  const raw=$("roomInput").value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g,"");
+  if(!raw){$("setupError").textContent="Enter a room code first.";return;}
+  if(!window.firebase||firebaseConfig.apiKey==="YOUR_API_KEY"||firebaseConfig.databaseURL.includes("YOUR_PROJECT_ID")){
+    $("setupError").textContent="Firebase is not configured yet. Edit firebaseConfig in this HTML file first.";return;
+  }
+  try{
+    if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+    db=firebase.database();room=raw;role=which;
+    myId=localStorage.getItem("liveBingoPlayerId")||("p_"+Math.random().toString(36).slice(2)+Date.now().toString(36));
+    localStorage.setItem("liveBingoPlayerId",myId);
+    roomRef=db.ref("liveBingoRooms/"+room);
+    const snap=await roomRef.once("value");
+    if(!snap.exists())await roomRef.set({called:[],patternKey:"anyline",customPattern:defaultPattern("anyline"),patternReady:false,started:false,players:{},createdAt:Date.now()});
+    if(role==="player"){
+      const ps=await roomRef.child("players/"+myId).once("value");
+      if(!ps.exists())await createOrReroll();
     }
-
-
-    /* ========================================
-       RESET GAME
-       ======================================== */
-
-    function resetGame() {
-
-      availableNumbers = [];
-
-      drawnNumbers = [];
-
-
-      /* Numbers 1 to 75 */
-
-      for (let i = 1; i <= 75; i++) {
-        availableNumbers.push(i);
+    showGame();
+    $("connectionDot").classList.add("on");$("connectionText").textContent="Connected";
+    roomRef.on("value",s=>{
+      gameData=s.val()||{};
+      if(role==="drawer")renderDrawer();else {
+        if(!gameData.players?.[myId]){createOrReroll();return;}
+        renderPlayer();
       }
-
-
-      const ball =
-        document.getElementById("ball");
-
-
-      ball.textContent = "?";
-
-
-      ball.classList.remove(
-        "ball-B",
-        "ball-I",
-        "ball-N",
-        "ball-G",
-        "ball-O"
-      );
-
-
-      document
-        .getElementById("drawButton")
-        .disabled = false;
-
-
-      updateDisplay();
-    }
-
-
-    /* ========================================
-       DRAW RANDOM NUMBER
-       ======================================== */
-
-    function drawNumber() {
-
-      if (availableNumbers.length === 0) {
-        return;
-      }
-
-
-      const randomIndex =
-        Math.floor(
-          Math.random() *
-          availableNumbers.length
-        );
-
-
-      /*
-       * Remove the selected number
-       * so it cannot appear again.
-       */
-
-      const number =
-        availableNumbers.splice(
-          randomIndex,
-          1
-        )[0];
-
-
-      drawnNumbers.push(number);
-
-
-      const letter =
-        getBingoLetter(number);
-
-
-      const ball =
-        document.getElementById("ball");
-
-
-      /* Latest number */
-
-      ball.textContent =
-        letter + " " + number;
-
-
-      /* Remove old ball color */
-
-      ball.classList.remove(
-        "ball-B",
-        "ball-I",
-        "ball-N",
-        "ball-G",
-        "ball-O"
-      );
-
-
-      /* Apply new letter color */
-
-      ball.classList.add(
-        "ball-" + letter
-      );
-
-
-      /*
-       * Disable drawing after
-       * all 75 numbers are used.
-       */
-
-      if (availableNumbers.length === 0) {
-
-        document
-          .getElementById("drawButton")
-          .disabled = true;
-      }
-
-
-      updateDisplay();
-    }
-
-
-    /* ========================================
-       UPDATE DISPLAY
-       ======================================== */
-
-    function updateDisplay() {
-
-      document
-        .getElementById("counter")
-        .textContent =
-          drawnNumbers.length +
-          " of 75 numbers drawn";
-
-
-      const letters =
-        ["B", "I", "N", "G", "O"];
-
-
-      /* Clear all rows */
-
-      letters.forEach(function(letter) {
-
-        document
-          .getElementById(
-            "numbers-" + letter
-          )
-          .innerHTML = "";
-      });
-
-
-      /*
-       * Group the drawn numbers
-       * by BINGO letter.
-       */
-
-      letters.forEach(function(letter) {
-
-        const numbersForLetter =
-          drawnNumbers
-            .filter(function(number) {
-              return getBingoLetter(number) === letter;
-            })
-            .sort(function(a, b) {
-              return a - b;
-            });
-
-
-        numbersForLetter.forEach(function(number) {
-
-          const element =
-            document.createElement("div");
-
-
-          element.className =
-            "drawn-number";
-
-
-          element.textContent =
-            number;
-
-
-          document
-            .getElementById(
-              "numbers-" + letter
-            )
-            .appendChild(element);
-
-        });
-
-      });
-    }
-
-
-    /* ========================================
-       BUTTON EVENTS
-       ======================================== */
-
-    document
-      .getElementById("drawButton")
-      .addEventListener(
-        "click",
-        drawNumber
-      );
-
-
-    document
-      .getElementById("resetButton")
-      .addEventListener(
-        "click",
-        resetGame
-      );
-
-
-    /* ========================================
-       INITIALIZE
-       ======================================== */
-
-    resetGame();
-
-  </script>
-
+    },err=>{$("connectionText").textContent="Connection error";$("connectionDot").classList.remove("on");$("setupError").textContent=err.message;});
+  }catch(e){$("setupError").textContent="Could not connect: "+e.message;}
+}
+$("appZoom").oninput=()=>{const v=Number($("appZoom").value);$("game").style.zoom=(v/100);$("zoomValue").textContent=v+"%";};
+$("joinDrawer").onclick=()=>join("drawer");
+$("joinPlayer").onclick=()=>join("player");
+$("drawBtn").onclick=()=>{if(!gameData.started)return;const available=Array.from({length:75},(_,i)=>i+1).filter(n=>!called().includes(n));if(available.length)drawNumber(available[Math.floor(Math.random()*available.length)]);};
+$("savePatternBtn").onclick=async()=>{
+  const key=$("patternSelect").value;
+  if(key==="custom"&&!customPattern.some(Boolean)){alert("Select at least one square for your custom pattern.");return;}
+  const pat=key==="custom"?customPattern.slice():defaultPattern(key);
+  if(gameData.started){alert("The game has already started. Reset the game to change the pattern.");return;}
+  await updateRoom({patternKey:key,customPattern:pat,patternReady:true});
+};
+$("startGameBtn").onclick=async()=>{
+  if(gameData.started||!gameData.patternReady)return;
+  if(!confirm("Start the game now? Players will no longer be able to reroll their cards or change the pattern."))return;
+  await updateRoom({started:true,startedAt:Date.now()});
+};
+$("patternSelect").onchange=()=>{const k=$("patternSelect").value;if(k==="custom"){customPattern=(gameData.customPattern||Array(25).fill(false)).slice();renderPattern($("patternEditor"),customPattern,true);}else renderPattern($("patternEditor"),defaultPattern(k),false);};
+$("rerollBtn").onclick=async()=>{
+  const btn=$("rerollBtn");
+  if(gameData.started){$("playerHint").textContent="The game has started. Card changes are locked.";return;}
+  btn.disabled=true;
+  const oldText=btn.textContent;btn.textContent="Creating…";
+  try{
+    await createOrReroll();
+    $("playerHint").textContent="New card generated! You can reroll again before the game starts.";
+  }catch(e){
+    $("playerHint").textContent="Could not generate a new card: "+e.message;
+  }finally{
+    btn.textContent=oldText;
+    btn.disabled=!!gameData.started;
+  }
+};
+$("resetBtn").onclick=async()=>{if(!confirm("Reset the room for everyone? This clears called numbers and all player cards and returns the room to pre-game setup."))return;await updateRoom({called:[],players:{},started:false,patternReady:false,startedAt:null});if(role==="player")await createOrReroll();};
+$("leaveBtn").onclick=()=>{if(roomRef)roomRef.off();roomRef=null;$("game").classList.add("hidden");$("setup").classList.remove("hidden");$("connectionDot").classList.remove("on");$("connectionText").textContent="Disconnected";};
+</script>
 </body>
 </html>
